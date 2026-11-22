@@ -11,12 +11,27 @@ updates:
       - 'ci'
     open-pull-requests-limit: 0
 
+  # npm workspaces: the only lockfile lives at the repository root, so the npm
+  # ecosystem has to be pointed at '/' rather than at an individual package.
+  # Pointing it at '/apps/web' (the previous value) meant this entry could never
+  # resolve anything, because that directory has no lockfile of its own.
   - package-ecosystem: 'npm'
-    directory: '/apps/web'
+    directory: '/'
     schedule:
       interval: 'weekly'
     target-branch: 'main'
     labels:
       - 'npm dependencies'
-      - 'frontend'
     open-pull-requests-limit: 0
+    groups:
+      npm-minor-patch:
+        update-types:
+          - 'minor'
+          - 'patch'
+    # Majors are ignored by default; the ones we care about (zod 3 -> 4,
+    # nodemailer 9 -> 10, react-router, etc.) need a hand-written migration
+    # rather than a bot PR.
+    ignore:
+      - dependency-name: '*'
+        update-types:
+          - 'version-update:semver-major'
